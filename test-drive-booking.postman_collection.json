@@ -1,0 +1,397 @@
+{
+  "info": {
+    "name": "Test Drive Booking API",
+    "_postman_id": "test-drive-booking-collection",
+    "description": "API collection for Test Drive Booking System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Product Category APIs",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3000/api/danh-muc"
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3000/api/danh-muc/:categoryId"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/danh-muc",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Category_Name\": \"Xe hơi\", \"Description\": \"Danh mục xe hơi\"}"
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/danh-muc/:categoryId",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Category_Name\": \"Xe hơi cập nhật\", \"Description\": \"Danh mục xe hơi cập nhật\"}"
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/danh-muc/:categoryId"
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3000/api/danh-muc/:categoryId/san-pham"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product APIs",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3000/api/san-pham"
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "http://localhost:3000/api/san-pham/:productId"
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/san-pham",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Product_Name\": \"Xe A\", \"CategoryID\": \"<categoryId>\", \"Price\": 1000, \"Main_Image\": \"image_url\"}"
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/san-pham/:productId",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Product_Name\": \"Xe A cập nhật\", \"Price\": 1200}"
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/san-pham/:productId"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User APIs",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"UserName\": \"user1\",\n  \"Password\": \"123456\",\n  \"Email\": \"user1@example.com\",\n  \"Phone\": \"0987654321\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/api/nguoi-dung/register", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api", "nguoi-dung", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"UserName\": \"user1\",\n  \"Password\": \"123456\"\n}"
+            },
+            "url": { "raw": "http://localhost:3000/api/nguoi-dung/login", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["api", "nguoi-dung", "login"] }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Email\": \"newemail@example.com\"}"
+            },
+            "url": "http://localhost:3000/api/nguoi-dung/:userId"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/dang-xuat"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart APIs",
+      "item": [
+        {
+          "name": "Get User Cart",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/gio-hang"
+          }
+        },
+        {
+          "name": "Create/Update Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/gio-hang",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Product_Name\": \"Xe A\", \"Status\": \"active\"}"
+            }
+          }
+        },
+        {
+          "name": "Update Cart",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Status\": \"completed\"}"
+            },
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/gio-hang"
+          }
+        },
+        {
+          "name": "Delete Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/gio-hang"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart Item APIs",
+      "item": [
+        {
+          "name": "Get Cart Items",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/gio-hang/:cartId/muc"
+          }
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/gio-hang/:cartId/muc",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"ProductID\": \"<productId>\", \"Quantity\": 1, \"Unit_price\": 1000}"
+            }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/gio-hang/:cartId/muc/:cartItemId",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Quantity\": 2}"
+            }
+          }
+        },
+        {
+          "name": "Delete Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/gio-hang/:cartId/muc/:cartItemId"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Test Drive APIs",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/lich-lai-thu"
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/lich-lai-thu/:orderId"
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/lich-lai-thu",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"UserID\": \"<userId>\", \"Order_Date\": \"2025-05-12\", \"Address\": \"123 ABC\"}"
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/lich-lai-thu/:orderId",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Status\": \"confirmed\"}"
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/lich-lai-thu/:orderId"
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/lich-lai-thu"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Business Logic APIs",
+      "item": [
+        {
+          "name": "Book Test Drive from Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/nguoi-dung/:userId/gio-hang/dat-lich"
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "http://localhost:3000/api/lich-lai-thu/:orderId/trang-thai",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"Status\": \"completed\"}"
+            }
+          }
+        },
+        {
+          "name": "Get Order Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/thong-ke/lich-lai-thu"
+          }
+        },
+        {
+          "name": "Get User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/thong-ke/nguoi-dung"
+          }
+        },
+        {
+          "name": "Get Product Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer <token>" }],
+            "url": "http://localhost:3000/api/thong-ke/san-pham"
+          }
+        }
+      ]
+    }
+  ]
+}

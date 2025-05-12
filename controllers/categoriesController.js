@@ -1,5 +1,7 @@
 const ProductCategory = require('../models/ProductCategory');
 const { successResponse, errorResponse, HTTP_STATUS } = require('../utils/responseHandler');
+const Category = require('../models/ProductCategory');
+const Product = require('../models/Product');
 
 // Lấy danh sách danh mục
 const getCategories = async (req, res) => {
@@ -89,10 +91,77 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+// Get all categories with pagination and search
+const getAllCategories = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '' } = req.query;
+    const query = {};
+
+    // Search by category name
+    if (search) {
+      query.Category_Name = { $regex: search, $options: 'i' };
+    }
+
+    // Calculate skip
+    const skip = (page - 1) * limit;
+
+    // Execute query
+    const [categories, total] = await Promise.all([
+      Category.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Category.countDocuments(query)
+    ]);
+
+    res.json({
+      categories,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get products by category
+const getProductsByCategory = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      Product.find({ CategoryID: req.params.categoryId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Product.countDocuments({ CategoryID: req.params.categoryId })
+    ]);
+
+    res.json({
+      products,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getCategories,
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getAllCategories,
+  getProductsByCategory
 }; 

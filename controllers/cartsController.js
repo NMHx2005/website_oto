@@ -2,67 +2,71 @@ const Cart = require('../models/Cart');
 const CartItem = require('../models/CartItem');
 const { successResponse, errorResponse, HTTP_STATUS } = require('../utils/responseHandler');
 
-// Lấy giỏ hàng của người dùng
+// Get user cart with pagination and search
 const getUserCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ UserID: req.params.userId, Status: 'active' })
-      .populate({
-        path: 'items',
-        populate: {
-          path: 'ProductID',
-          select: 'Product_Name Price Main_Image'
-        }
-      });
+    const { page = 1, limit = 10, search = '', status = '' } = req.query;
+    const query = { UserID: req.params.userId };
 
-    if (!cart) {
-      return successResponse(res, { items: [], Total_Amount: 0 });
+    // Search by product name
+    if (search) {
+      query['Items.Product_Name'] = { $regex: search, $options: 'i' };
     }
 
-    successResponse(res, cart);
+    // Filter by status
+    if (status) {
+      query.Status = status;
+    }
+
+    // Calculate skip
+    const skip = (page - 1) * limit;
+
+    // Execute query
+    const [cart, total] = await Promise.all([
+      Cart.findOne(query)
+        .populate('Items.ProductID')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Cart.countDocuments(query)
+    ]);
+
+    if (!cart) {
+      return successResponse(res, { items: [], total: 0 });
+    }
+
+    successResponse(res, {
+      cart,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     errorResponse(res, 'Lỗi lấy giỏ hàng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
   }
 };
 
-// Tạo giỏ hàng mới
-const createCart = async (req, res) => {
+// Create/Update cart
+const createOrUpdateCart = async (req, res) => {
   try {
-    // Kiểm tra xem người dùng đã có giỏ hàng active chưa
-    const existingCart = await Cart.findOne({
-      UserID: req.params.userId,
-      Status: 'active'
-    });
+    const { Product_Name, Status } = req.body;
+    const userId = req.params.userId;
 
-    if (existingCart) {
-      return errorResponse(res, 'Người dùng đã có giỏ hàng', HTTP_STATUS.BAD_REQUEST);
-    }
-
-    const cart = new Cart({
-      UserID: req.params.userId,
-      Status: 'active',
-      Total_Amount: 0
-    });
-
-    await cart.save();
-    successResponse(res, cart, 'Tạo giỏ hàng thành công', HTTP_STATUS.CREATED);
-  } catch (error) {
-    errorResponse(res, 'Lỗi tạo giỏ hàng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
-  }
-};
-
-// Cập nhật giỏ hàng
-const updateCart = async (req, res) => {
-  try {
-    const { Status } = req.body;
-    const cart = await Cart.findOne({
-      UserID: req.params.userId,
-      Status: 'active'
-    });
+    let cart = await Cart.findOne({ UserID: userId });
 
     if (!cart) {
-      return errorResponse(res, 'Không tìm thấy giỏ hàng', HTTP_STATUS.NOT_FOUND);
+      // Create new cart
+      cart = new Cart({
+        UserID: userId,
+        Items: [],
+        Status: Status || 'active'
+      });
     }
 
+    // Update cart status if provided
     if (Status) {
       cart.Status = Status;
     }
@@ -74,23 +78,35 @@ const updateCart = async (req, res) => {
   }
 };
 
-// Xóa giỏ hàng
-const deleteCart = async (req, res) => {
+// Update cart
+const updateCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({
-      UserID: req.params.userId,
-      Status: 'active'
-    });
+    const { Status } = req.body;
+    const userId = req.params.userId;
+
+    const cart = await Cart.findOneAndUpdate(
+      { UserID: userId },
+      { Status },
+      { new: true }
+    );
 
     if (!cart) {
       return errorResponse(res, 'Không tìm thấy giỏ hàng', HTTP_STATUS.NOT_FOUND);
     }
 
-    // Xóa tất cả các mục trong giỏ hàng
-    await CartItem.deleteMany({ CartID: cart._id });
+    successResponse(res, cart, 'Cập nhật giỏ hàng thành công');
+  } catch (error) {
+    errorResponse(res, 'Lỗi cập nhật giỏ hàng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
+  }
+};
 
-    // Xóa giỏ hàng
-    await cart.remove();
+// Delete cart
+const deleteCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOneAndDelete({ UserID: req.params.userId });
+    if (!cart) {
+      return errorResponse(res, 'Không tìm thấy giỏ hàng', HTTP_STATUS.NOT_FOUND);
+    }
     successResponse(res, null, 'Xóa giỏ hàng thành công');
   } catch (error) {
     errorResponse(res, 'Lỗi xóa giỏ hàng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
@@ -111,7 +127,7 @@ const updateCartTotal = async (cartId) => {
 
 module.exports = {
   getUserCart,
-  createCart,
+  createOrUpdateCart,
   updateCart,
   deleteCart,
   updateCartTotal

@@ -199,11 +199,72 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+// Get all products with pagination, search and filters
+const getAllProducts = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      categoryId,
+      minPrice,
+      maxPrice,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const query = {};
+    
+    // Search by product name
+    if (search) {
+      query.Product_Name = { $regex: search, $options: 'i' };
+    }
+    
+    // Filter by category
+    if (categoryId) {
+      query.CategoryID = categoryId;
+    }
+    
+    // Filter by price range
+    if (minPrice || maxPrice) {
+      query.Price = {};
+      if (minPrice) query.Price.$gte = Number(minPrice);
+      if (maxPrice) query.Price.$lte = Number(maxPrice);
+    }
+
+    // Calculate skip
+    const skip = (page - 1) * limit;
+
+    // Execute query
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .populate('CategoryID'),
+      Product.countDocuments(query)
+    ]);
+
+    res.json({
+      products,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
-  getProductsByCategory
+  getProductsByCategory,
+  getAllProducts
 }; 

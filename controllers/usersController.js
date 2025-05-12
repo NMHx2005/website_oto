@@ -78,64 +78,96 @@ const logout = async (req, res) => {
   }
 };
 
-// Lấy danh sách người dùng
-const getUsers = async (req, res) => {
+// Get all users with pagination and search
+const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-Password');
-    successResponse(res, users);
+    const { page = 1, limit = 10, search = '', role = '' } = req.query;
+    const query = {};
+
+    // Search by username, email or phone
+    if (search) {
+      query.$or = [
+        { UserName: { $regex: search, $options: 'i' } },
+        { Email: { $regex: search, $options: 'i' } },
+        { Phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Filter by role
+    if (role) {
+      query.Role = role;
+    }
+
+    // Calculate skip
+    const skip = (page - 1) * limit;
+
+    // Execute query
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select('-Password') // Exclude password from response
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      User.countDocuments(query)
+    ]);
+
+    res.json({
+      users,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    errorResponse(res, 'Lỗi lấy danh sách người dùng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Lấy thông tin người dùng theo ID
+// Get user by ID
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select('-Password');
+    const user = await User.findById(req.params.userId)
+      .select('-Password');
     if (!user) {
-      return errorResponse(res, 'Không tìm thấy người dùng', HTTP_STATUS.NOT_FOUND);
+      return res.status(404).json({ message: 'User not found' });
     }
-    successResponse(res, user);
+    res.json(user);
   } catch (error) {
-    errorResponse(res, 'Lỗi lấy thông tin người dùng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Cập nhật thông tin người dùng
+// Update user
 const updateUser = async (req, res) => {
   try {
-    const { Password, ...updateData } = req.body;
-    const user = await User.findById(req.params.userId);
-
+    const { Password, ...updateData } = req.body; // Prevent password update through this route
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      updateData,
+      { new: true }
+    ).select('-Password');
+    
     if (!user) {
-      return errorResponse(res, 'Không tìm thấy người dùng', HTTP_STATUS.NOT_FOUND);
+      return res.status(404).json({ message: 'User not found' });
     }
-
-    // Nếu có cập nhật mật khẩu
-    if (Password) {
-      user.Password = Password;
-    }
-
-    // Cập nhật các trường khác
-    Object.assign(user, updateData);
-    await user.save();
-
-    successResponse(res, user, 'Cập nhật thành công');
+    res.json(user);
   } catch (error) {
-    errorResponse(res, 'Lỗi cập nhật người dùng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
+    res.status(400).json({ message: error.message });
   }
 };
 
-// Xóa người dùng
+// Delete user
 const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.userId);
     if (!user) {
-      return errorResponse(res, 'Không tìm thấy người dùng', HTTP_STATUS.NOT_FOUND);
+      return res.status(404).json({ message: 'User not found' });
     }
-    successResponse(res, null, 'Xóa người dùng thành công');
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    errorResponse(res, 'Lỗi xóa người dùng', HTTP_STATUS.INTERNAL_SERVER_ERROR, error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -143,7 +175,7 @@ module.exports = {
   register,
   login,
   logout,
-  getUsers,
+  getAllUsers,
   getUserById,
   updateUser,
   deleteUser

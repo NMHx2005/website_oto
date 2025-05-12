@@ -1,49 +1,33 @@
-# Test Drive Booking System API
+# Hệ Thống API Đặt Lịch Lái Thử Xe
 
-Hệ thống API đặt lịch lái thử xe với các chức năng quản lý sản phẩm, người dùng, giỏ hàng và đơn hàng.
+Hệ thống API cho ứng dụng đặt lịch lái thử xe.
 
-## Công nghệ sử dụng
-
-### Backend
-- **Node.js**: Runtime environment
-- **Express.js**: Web framework
-- **MongoDB**: Database
-- **Mongoose**: ODM cho MongoDB
-- **JWT**: Xác thực người dùng
-- **Cloudinary**: Quản lý và lưu trữ hình ảnh
-- **Multer**: Xử lý upload file
-- **Bcryptjs**: Mã hóa mật khẩu
-- **Cors**: Xử lý CORS
-- **Dotenv**: Quản lý biến môi trường
-
-## Cài đặt và Chạy dự án
+## Cài Đặt
 
 1. Clone repository:
 ```bash
 git clone <repository-url>
+cd test-drive-booking
 ```
 
-2. Cài đặt dependencies:
+2. Cài đặt các gói phụ thuộc:
 ```bash
 npm install
 ```
 
-3. Tạo file .env và cấu hình các biến môi trường:
+3. Tạo file .env và cấu hình:
 ```env
 PORT=3000
-MONGO_URI=mongodb://localhost:27017/test-drive-booking
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+MONGODB_URI=đường_dẫn_kết_nối_mongodb
+JWT_SECRET=khóa_bí_mật_jwt
+JWT_EXPIRES_IN=24h
+CLOUDINARY_CLOUD_NAME=tên_cloud
+CLOUDINARY_API_KEY=khóa_api
+CLOUDINARY_API_SECRET=bí_mật_api
 ```
 
-4. Chạy dự án:
+4. Khởi động server:
 ```bash
-# Development
-npm run dev
-
-# Production
 npm start
 ```
 
@@ -70,36 +54,31 @@ npm start
 ### 3. Người Dùng (Users)
 - `POST /api/nguoi-dung/register`: Đăng ký tài khoản
 - `POST /api/nguoi-dung/login`: Đăng nhập
-- `POST /api/nguoi-dung/dang-xuat`: Đăng xuất
+- `POST /api/nguoi-dung/dang-xuat`: Đăng xuất (Yêu cầu xác thực)
 - `GET /api/nguoi-dung`: Lấy danh sách người dùng (Yêu cầu xác thực)
 - `GET /api/nguoi-dung/:userId`: Lấy thông tin người dùng (Yêu cầu xác thực)
 - `PUT /api/nguoi-dung/:userId`: Cập nhật thông tin người dùng (Yêu cầu xác thực)
 - `DELETE /api/nguoi-dung/:userId`: Xóa người dùng (Yêu cầu xác thực)
 
 ### 4. Giỏ Hàng (Cart)
-- `GET /api/nguoi-dung/:userId/gio-hang`: Lấy thông tin giỏ hàng
-- `POST /api/nguoi-dung/:userId/gio-hang`: Tạo/cập nhật giỏ hàng
-  - Body: `{"Product_Name": "Xe A", "Status": "active"}`
-- `PUT /api/nguoi-dung/:userId/gio-hang`: Cập nhật trạng thái giỏ hàng
-  - Body: `{"Status": "completed"}`
-- `DELETE /api/nguoi-dung/:userId/gio-hang`: Xóa giỏ hàng
+- `GET /api/nguoi-dung/:userId/gio-hang`: Lấy thông tin giỏ hàng (Yêu cầu xác thực)
+- `POST /api/nguoi-dung/:userId/gio-hang`: Tạo/cập nhật giỏ hàng (Yêu cầu xác thực)
+- `PUT /api/nguoi-dung/:userId/gio-hang`: Cập nhật trạng thái giỏ hàng (Yêu cầu xác thực)
+- `DELETE /api/nguoi-dung/:userId/gio-hang`: Xóa giỏ hàng (Yêu cầu xác thực)
 
 ### 5. Chi Tiết Giỏ Hàng (Cart Items)
-- `GET /api/gio-hang/:cartId/muc`: Lấy danh sách sản phẩm trong giỏ hàng
-- `POST /api/gio-hang/:cartId/muc`: Thêm sản phẩm vào giỏ hàng
-  - Body: `{"ProductID": "<productId>", "Quantity": 1, "Unit_price": 1000}`
-- `PUT /api/gio-hang/:cartId/muc/:cartItemId`: Cập nhật số lượng sản phẩm
-  - Body: `{"Quantity": 2}`
-- `DELETE /api/gio-hang/:cartId/muc/:cartItemId`: Xóa sản phẩm khỏi giỏ hàng
+- `GET /api/gio-hang/:cartId/muc`: Lấy danh sách sản phẩm trong giỏ hàng (Yêu cầu xác thực)
+- `POST /api/gio-hang/:cartId/muc`: Thêm sản phẩm vào giỏ hàng (Yêu cầu xác thực)
+- `PUT /api/gio-hang/:cartId/muc/:cartItemId`: Cập nhật số lượng sản phẩm (Yêu cầu xác thực)
+- `DELETE /api/gio-hang/:cartId/muc/:cartItemId`: Xóa sản phẩm khỏi giỏ hàng (Yêu cầu xác thực)
 
 ### 6. Đơn Hàng Lái Thử (Test Drive Orders)
 - `GET /api/lich-lai-thu`: Lấy danh sách đơn hàng (Yêu cầu xác thực)
 - `GET /api/lich-lai-thu/:orderId`: Lấy thông tin đơn hàng (Yêu cầu xác thực)
 - `POST /api/lich-lai-thu`: Tạo đơn hàng mới (Yêu cầu xác thực)
-  - Hỗ trợ upload ảnh (lưu trữ trên Cloudinary)
 - `PUT /api/lich-lai-thu/:orderId`: Cập nhật trạng thái đơn hàng (Yêu cầu xác thực)
 - `DELETE /api/lich-lai-thu/:orderId`: Xóa đơn hàng (Yêu cầu xác thực)
-- `GET /api/nguoi-dung/:userId/lich-lai-thu`: Lấy đơn hàng của người dùng
+- `GET /api/nguoi-dung/:userId/lich-lai-thu`: Lấy đơn hàng của người dùng (Yêu cầu xác thực)
 
 ### 7. Thống Kê (Statistics)
 - `GET /api/thong-ke/lich-lai-thu`: Thống kê đơn hàng (Yêu cầu xác thực)
@@ -107,9 +86,8 @@ npm start
 - `GET /api/thong-ke/san-pham`: Thống kê sản phẩm (Yêu cầu xác thực)
 
 ### 8. Business Logic APIs
-- `POST /api/nguoi-dung/:userId/gio-hang/dat-lich`: Đặt lịch lái thử từ giỏ hàng
-- `PUT /api/lich-lai-thu/:orderId/trang-thai`: Cập nhật trạng thái đơn hàng
-  - Body: `{"Status": "completed"}`
+- `POST /api/nguoi-dung/:userId/gio-hang/dat-lich`: Đặt lịch lái thử từ giỏ hàng (Yêu cầu xác thực)
+- `PUT /api/lich-lai-thu/:orderId/trang-thai`: Cập nhật trạng thái đơn hàng (Yêu cầu xác thực)
 
 ## Tính năng chính
 
@@ -152,9 +130,58 @@ npm start
 
 1. Đảm bảo đã cấu hình đúng các biến môi trường trong file .env
 2. Các API yêu cầu xác thực cần gửi kèm token trong header:
-   ```
-   Authorization: Bearer <token>
-   ```
+```
+Authorization: Bearer <token>
+```
 3. Khi upload ảnh, sử dụng form-data với các field tương ứng
 4. Giới hạn kích thước file ảnh: 5MB
-5. Định dạng ảnh được chấp nhận: jpg, jpeg, png, gif 
+5. Định dạng ảnh được chấp nhận: jpg, jpeg, png, gif
+
+## Định Dạng Phản Hồi
+
+Tất cả các API đều trả về phản hồi theo định dạng sau:
+
+```json
+{
+  "success": true,
+  "message": "Thông báo thành công",
+  "data": {
+    // Dữ liệu trả về
+  },
+  "pagination": {
+    "total": 100,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 10
+  }
+}
+```
+
+## Xử Lý Lỗi
+
+Các lỗi được trả về theo định dạng:
+
+```json
+{
+  "success": false,
+  "message": "Thông báo lỗi",
+  "error": {
+    "code": "MÃ_LỖI",
+    "details": "Chi tiết lỗi"
+  }
+}
+```
+
+## Giới Hạn Tốc Độ
+
+API có giới hạn số lượng request:
+- 100 requests/phút cho mỗi IP
+- 1000 requests/giờ cho mỗi người dùng
+
+## CORS
+
+API hỗ trợ CORS với các domain được cấu hình trong file .env:
+
+```env
+CORS_ORIGIN=http://localhost:3000,https://yourdomain.com
+``` 
